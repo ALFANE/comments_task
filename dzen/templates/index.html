@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title_content %}Comments list{% endblock %}
+
+{% block body_content %}
+<div class="container my-5 py-5 text-body">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-6">
+            <div class="card">
+                <div class="card-body p-4">
+                    <!-- Форма добавления комментария -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="w-100">
+                            <h5>Добавить комментарий</h5>
+                            <h6>Обязательные поля отмечены *</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="far fa-star fa-sm" title="Bad">Имя пользователя*:</i> {{ comment_form.username }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="far fa-star fa-sm" title="Bad">Email*:</i> {{ comment_form.email }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="far fa-star fa-sm" title="Bad">Ссылка на соцсеть:</i> {{ comment_form.home_page }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="far fa-star fa-sm" title="Bad">Ваш комментарий*:</i> {{ comment_form.message }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="far fa-star fa-sm" title="Bad">Введите символы на картинке*:</i>
+                                    <p>{{ comment_form.captcha }}</p>
+                                </li>
+                            </ul>
+                            <div class="d-flex justify-content-center mt-3">
+                                <button class="btn btn-danger btn-lg" type="submit">Добавить комментарий</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Существующие комментарии -->
+                    <div class="mt-5">
+                        {% for comment in comments %}
+                        <div class="d-flex flex-start mb-4">
+                            <img class="rounded-circle shadow-1-strong me-3"
+                                src="https://img.freepik.com/premium-vector/unknown-person-icon_116137-7213.jpg" alt="avatar" width="70" height="70" />
+                            <div class="flex-grow-1 flex-shrink-1">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="mb-1">
+                                            <b class="h5">{{ comment.username }}</b> <span>{{ comment.email }}</span>
+                                        </p>
+                                        <a href="#!" class="reply-button text-primary" data-toggle="modal" data-target="#replyModal-{{ comment.id }}">
+                                            <i class="fas fa-reply fa-xs"></i><span class="small"> Ответить</span>
+                                        </a>
+                                    </div>
+                                    <p class="small mb-0">
+                                        {{ comment.message }}
+                                    </p>
+                                </div>
+
+                                {% for reply in comment.replies.all %}
+                                <div class="d-flex flex-start mt-4">
+                                    <img class="rounded-circle shadow-1-strong me-3"
+                                        src="https://img.freepik.com/premium-vector/unknown-person-icon_116137-7213.jpg" alt="avatar" width="65" height="65" />
+                                    <div class="flex-grow-1 flex-shrink-1">
+                                        <div>
+                                            <p class="mb-1">
+                                                {{ reply.username }} <span class="small">{{ reply.email }}</span>
+                                            </p>
+                                            <p class="small mb-0">
+                                                {{ reply.message }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Модальное окно для ответа на комментарий -->
+                        <div class="modal fade" id="replyModal-{{ comment.id }}" tabindex="-1" role="dialog" aria-labelledby="replyModalLabel-{{ comment.id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="replyModalLabel-{{ comment.id }}">Ответ на комментарий</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="POST" action="{% url 'comments_list' %}">
+                                            {% csrf_token %}
+                                            <div class="w-100">
+                                                <h6>Обязательные поля отмечены *</h6>
+                                                <ul class="list-unstyled">
+                                                    <li class="mb-2">
+                                                        <i class="far fa-star fa-sm" title="Bad">Имя пользователя*:</i> {{ comment_form.username }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="far fa-star fa-sm" title="Bad">Email*:</i> {{ comment_form.email }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="far fa-star fa-sm" title="Bad">Ссылка на соцсеть:</i> {{ comment_form.home_page }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="far fa-star fa-sm" title="Bad">Ваш комментарий*:</i> {{ comment_form.message }}
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="far fa-star fa-sm" title="Bad">Введите символы на картинке*:</i>
+                                                        <p>{{ comment_form.captcha }}</p>
+                                                    </li>
+                                                </ul>
+                                                <input type="hidden" name="main_comment" value="{{ comment.id }}">
+                                                <div class="d-flex justify-content-center mt-3">
+                                                    <button class="btn btn-danger btn-lg" type="submit">Сохранить ответ</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% endfor %}
+                    </div> <!-- Закрываем блок существующих комментариев -->
+
+                </div> <!-- Закрываем div.card-body -->
+            </div> <!-- Закрываем div.card -->
+        </div> <!-- Закрываем div.col-md-10.col-lg-8.col-xl-6 -->
+    </div> <!-- Закрываем div.row -->
+</div> <!-- Закрываем div.container -->
+
+<!-- Bootstrap and jQuery JavaScript -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.11.0/dist/umd/popper.min.js" integrity="sha384-cWcB9gR8l7TVT7W5nP6TBF3I1N7oLQwqD0euLUBO2YcG8p+E2A4z4zLJdz6g2P8wK" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+{% endblock %}
