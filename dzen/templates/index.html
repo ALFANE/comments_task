@@ -38,6 +38,20 @@
                         </div>
                     </form>
 
+                    <!-- Сортировка -->
+                    <div class="d-flex justify-content-end mt-3">
+                        <form method="get" class="form-inline">
+                            <label for="sort" class="mr-2">Сортировать по:</label>
+                            <select id="sort" name="sort" class="form-control" onchange="this.form.submit()">
+                                <option value="">Выберите...</option>
+                                <option value="created_at" {% if request.GET.sort == "created_at" %}selected{% endif %}>По дате создания</option>
+                                <option value="created_at_desc" {% if request.GET.sort == "created_at_desc" %}selected{% endif %}>По дате создания (новые сначала)</option>
+                                <option value="username" {% if request.GET.sort == "username" %}selected{% endif %}>По имени пользователя</option>
+                                <option value="email" {% if request.GET.sort == "email" %}selected{% endif %}>По email</option>
+                            </select>
+                        </form>
+                    </div>
+
                     <!-- Существующие комментарии -->
                     <div class="mt-5">
                         {% for comment in comments %}
@@ -124,6 +138,49 @@
 
                         {% endfor %}
                     </div> <!-- Закрываем блок существующих комментариев -->
+
+                    <!-- Пагинация -->
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {% if comments.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ comments.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                                {% endif %}
+
+                                {% for num in comments.paginator.page_range %}
+                                {% if comments.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                                {% elif num > comments.number|add:'-5' and num < comments.number|add:'5' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+
+                                {% if comments.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ comments.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
 
                 </div> <!-- Закрываем div.card-body -->
             </div> <!-- Закрываем div.card -->

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from decouple import config
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    '0.0.0.0',
 ]
 
 STATIC_ROOT = '/home/alfan/user/dzencode/comm/comments/static'
@@ -66,8 +68,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "comments.middleware.LogMiddleware",
-    "comments.middleware.RawDataMiddleware",
-    "comments.middleware.IdentifyResponseMiddleware",
+
 ]
 
 CORS_ORIGIN_ALLOW_ALL=True
@@ -157,6 +158,15 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend', 'rest_framework.filters.OrderingFilter']
 
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'alfan2620@gmail.com'
+# EMAIL_HOST_PASSWORD = 'khjm blmb ccof eugu'
+EMAIL_HOST_USER = config('GMAIL_HOST')
+EMAIL_HOST_PASSWORD = config('GMAIL_PASSWORD')
 
 CAPTCHA_IMAGE_SIZE = (200, 100)  # Ширина и высота изображения CAPTCHA
 CAPTCHA_FONT_SIZE = 50  # Размер шрифта текста CAPTCHA
