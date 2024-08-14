@@ -1,4 +1,4 @@
-# Comments Project
+_````````# Comments Project
 
 This is a Django-based project that implements a simple comment system with API endpoints. The project includes functionalities such as posting comments, replying to comments, and performing CRUD operations on the comments via a RESTful API.
 
@@ -113,4 +113,4 @@ In the views.py file, there is a commented-out line related to sending emails:
 To enable email sending:
 
 Uncomment the line above in the views.py file where email sending is implemented.
-Create a .env file based on the provided .env.dist file. This file should include your email configuration settings.
+Create a .env file based on the provided .env.dist file. This file should include your email configuration settings.````````_

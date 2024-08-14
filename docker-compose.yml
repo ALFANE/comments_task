@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    depends_on:
+      - nginx
+    ports:
+      - "8081:8002"
+    entrypoint: ./entrypoint.sh
+    volumes:
+      - ./:/usr/src/
+#    env_file:
+#      - .env
+    restart: always
+
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "79:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/sites-enabled/default
+    restart: always

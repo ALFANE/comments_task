@@ -20,4 +20,4 @@ RUN poetry run python manage.py collectstatic --noinput
 EXPOSE 8002
 
 # Устанавливаем команду по умолчанию для запуска приложения на порту 8002, при использовании docker compose не пишется
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8002"]
+#CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8002"]
