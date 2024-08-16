@@ -10,18 +10,14 @@ from dzen.models import Comment
 from dzen.serializers import CommentSerializer
 
 
-# Класс CommentsView отвечает за отображение и обработку запросов, связанных с комментариями.
-# Включает методы для отображения списка комментариев и обработки формы добавления нового комментария.
-
-
 class CommentsView(View):
     def get(self, request):
-        # Обрабатывает GET-запросы для получения списка комментариев.
-        # Извлекает параметры запроса, такие как порядок сортировки и номер страницы для пагинации.
-        # Создает и передает форму для добавления новых комментариев в контекст шаблона.
-        # Выполняет пагинацию для управления отображением большого количества комментариев.
-        # Передает контекст в шаблон для рендеринга страницы с комментариями.
-
+        """
+        Обрабатывает GET-запросы для отображения списка комментариев.
+        Поддерживает сортировку и пагинацию комментариев.
+        Создает форму для добавления нового комментария и передает ее в контекст шаблона.
+        """
+        # Определение порядка сортировки и параметры пагинации
         sort_by = request.GET.get("sort", "created_at_desc")
         allowed_sort_fields = {
             "created_at": "created_at",
@@ -30,9 +26,13 @@ class CommentsView(View):
             "email": "email",
         }
         sort_by = allowed_sort_fields.get(sort_by, "-created_at")
+
+        # Получение формы для добавления комментария
         comment_form = CommentForm()
+
+        # Получение и сортировка комментариев
         comments_list = (
-            Comment.objects.filter(main_comment__isnull=True)
+            Comment.objects.filter(main_comment=None)
             .prefetch_related("replies")
             .order_by(sort_by)
         )
@@ -53,18 +53,33 @@ class CommentsView(View):
 
         return render(request=request, template_name="index.html", context=context)
 
-    def post(self, request):
-        # Обрабатывает POST-запросы для добавления нового комментария.
-        # Валидирует данные формы и, в случае успешной валидации, сохраняет новый комментарий в базе данных.
-        # Отправляет подтверждающее письмо на указанный в форме email-адрес.
-        # После сохранения комментария перенаправляет пользователя на страницу со списком комментариев.
+    def get_comment_tree(self, comments):
+        """
+        Построение древовидной структуры комментариев для отображения ответов на комментарии.
+        """
+        comment_tree = []
+        for comment in comments:
+            node = {
+                'id': comment.id,
+                'username': comment.username,
+                'message': comment.message,
+                'replies': self.get_comment_tree(comment.replies.all())
+            }
+            comment_tree.append(node)
+        return comment_tree
 
-        comment_form = CommentForm(request.POST)
+    def post(self, request):
+        """
+        Обрабатывает POST-запросы для добавления нового комментария.
+        В случае успешной валидации данных формы, сохраняет комментарий и отправляет подтверждающее письмо.
+        Перенаправляет на страницу со списком комментариев.
+        """
+        comment_form = CommentForm(request.POST, request.FILES)
         if comment_form.is_valid():
             send_email(
                 recipient_list=[
+                    # Раскомментировать в случае рассылки на email
                     # comment_form.cleaned_data["email"],
-                    #раскоментировать в случае рассылки на email
                 ]
             )
             comment_form.save()
@@ -72,12 +87,12 @@ class CommentsView(View):
         return redirect(reverse("comments_list"))
 
 
-# Класс CommentsViewSet реализует REST API для работы с комментариями.
-# Позволяет выполнять операции создания, чтения, обновления и удаления (CRUD) через API-интерфейс.
-# Использует сериализацию данных для преобразования объектов модели в формат JSON и обратно.
-
-
 class CommentsViewSet(ModelViewSet):
+    """
+    Реализует REST API для комментариев.
+    Позволяет выполнять CRUD-операции через API-интерфейс.
+    Использует сериализацию данных для преобразования объектов модели в формат JSON и обратно.
+    """
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filterset_fields = (

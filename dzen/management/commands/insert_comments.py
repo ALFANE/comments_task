@@ -24,4 +24,4 @@ class Command(BaseCommand):
             comment.message = faker.text()
             comment.save()
 
-        sys.stdout.write("End inserting Students \n")
+        sys.stdout.write("End inserting Comments \n")

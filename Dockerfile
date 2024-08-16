@@ -16,7 +16,7 @@ RUN poetry config virtualenvs.create false && poetry install
 # Собираем статические файлы (если нужно)
 RUN poetry run python manage.py collectstatic --noinput
 
-# Указываем, что контейнер прослушивает порт 8001
+# Указываем, что контейнер прослушивает порт 8002
 EXPOSE 8002
 
 # Устанавливаем команду по умолчанию для запуска приложения на порту 8002, при использовании docker compose не пишется

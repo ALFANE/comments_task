@@ -1,0 +1,82 @@
+{% for comment in comments %}
+<div class="d-flex flex-start mb-4">
+    <img class="rounded-circle shadow-1-strong me-3"
+        src="https://img.freepik.com/premium-vector/unknown-person-icon_116137-7213.jpg" alt="avatar" width="70" height="70" />
+    <div class="flex-grow-1 flex-shrink-1">
+        <div>
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="mb-1">
+                    <b class="h5">{{ comment.username }}</b> <span>{{ comment.email }}</span>
+                </p>
+                <a href="#!" class="reply-button text-primary" data-toggle="modal" data-target="#replyModal-{{ comment.id }}">
+                    <i class="fas fa-reply fa-xs"></i><span class="small"> Ответить</span>
+                </a>
+            </div>
+            <p class="small mb-0">
+                {{ comment.message }}
+            </p>
+            {% if comment.attachment %}
+                <div>
+                    {% if comment.attachment.name|slice:"-4:" == ".txt" %}
+                        <a href="{{ comment.attachment.url }}" download>Скачать файл</a>
+                    {% else %}
+                        <img src="{{ comment.attachment.url }}" alt="attachment" width="320" height="240">
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        {% if comment.replies.exists %}
+            <div class="ml-5">
+                {% include "comment_tree.html" with comments=comment.replies.all %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Модальное окно для ответа на комментарий -->
+<div class="modal fade" id="replyModal-{{ comment.id }}" tabindex="-1" role="dialog" aria-labelledby="replyModalLabel-{{ comment.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="replyModalLabel-{{ comment.id }}">Ответ на комментарий</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'comments_list' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="w-100">
+                        <h6>Обязательные поля отмечены *</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="far fa-star fa-sm" title="Bad">Имя пользователя*:</i> {{ comment_form.username }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="far fa-star fa-sm" title="Bad">Email*:</i> {{ comment_form.email }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="far fa-star fa-sm" title="Bad">Ссылка на соцсеть:</i> {{ comment_form.home_page }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="far fa-star fa-sm" title="Bad">Ваш комментарий*:</i> {{ comment_form.message }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="far fa-star fa-sm" title="Bad">Прикрепить файл(JPG, GIF, PNG, TXT):</i> {{ comment_form.attachment }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="far fa-star fa-sm" title="Bad">Введите символы на картинке*:</i>
+                                <p>{{ comment_form.captcha }}</p>
+                            </li>
+                        </ul>
+                        <input type="hidden" name="main_comment" value="{{ comment.id }}">
+                        <div class="d-flex justify-content-center mt-3">
+                            <button class="btn btn-danger btn-lg" type="submit">Ответить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

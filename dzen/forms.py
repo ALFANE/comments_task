@@ -15,6 +15,7 @@ class CommentForm(ModelForm):
             "message",
             "captcha",
             "main_comment",
+            "attachment",
         ]
         widgets = {
             "message": Textarea(attrs={"rows": 5}),  # Настройка виджета для поля сообщения
