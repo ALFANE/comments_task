@@ -1,4 +1,4 @@
-_````````# Comments Project
+# Comments Project
 
 This is a Django-based project that implements a simple comment system with API endpoints. The project includes functionalities such as posting comments, replying to comments, and performing CRUD operations on the comments via a RESTful API.
 
